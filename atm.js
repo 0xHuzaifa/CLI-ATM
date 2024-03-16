@@ -1,5 +1,8 @@
 import inquirer from "inquirer";
 import chalk from "chalk";
+/*
+* @note getUserNameInput get username input from user and return the value. it is used to take UserName when a user login or register
+*/
 async function getUserNameInput() {
     const UserNameInput = await inquirer.prompt({
         name: "username",
@@ -8,6 +11,9 @@ async function getUserNameInput() {
     });
     return UserNameInput.username.toLowerCase();
 }
+/*
+* @note getUserEmailInput get user email input from user and return the value. it is used to take user email when a user login or register
+*/
 async function getUserEmailInput() {
     const UserEmailInput = await inquirer.prompt({
         name: "email",
@@ -17,6 +23,9 @@ async function getUserEmailInput() {
     const userEmail = UserEmailInput.email;
     return userEmail.toLowerCase();
 }
+/*
+* @note getBalanceDepositInput get number input from user and return the value. it is used to take amount when a user deposit balance
+*/
 async function getBalanceDepositInput() {
     const BalanceDepositAndWithdrawInput = await inquirer.prompt({
         name: "balance",
@@ -25,6 +34,9 @@ async function getBalanceDepositInput() {
     });
     return BalanceDepositAndWithdrawInput.balance;
 }
+/*
+* @note getBalanceDepositInput get number input from user and return the value. it is used to take amount when a user withdraw balance
+*/
 async function getBalanceWithdrawInput() {
     const BalanceWithdrawInput = await inquirer.prompt({
         name: "withdraw",
@@ -33,6 +45,9 @@ async function getBalanceWithdrawInput() {
     });
     return BalanceWithdrawInput.withdraw;
 }
+/*
+* @note getLoginInput get one element input from user and return the value. it is used to chose one choice when you are login
+*/
 async function getLoginInput() {
     const LoginInput = await inquirer.prompt({
         name: "chose",
@@ -41,14 +56,20 @@ async function getLoginInput() {
     });
     return LoginInput.chose;
 }
+/*
+* @note getPinInput get number input from user and return the value. it is used to take pin when a user login or register or changing pin
+*/
 async function getPinInput() {
     const PinInput = await inquirer.prompt({
         name: "pin",
         type: "number",
-        message: "Enter your new pin"
+        message: "Enter new pin"
     });
     return PinInput.pin;
 }
+/*
+* @note getLoginOrRegisterInput get element input from user and return the value. it is used to chose one choice when you are start the program
+*/
 async function getLoginOrRegisterInput() {
     const LoginOrRegisterInput = await inquirer.prompt({
         name: "loginOrRegister",
@@ -58,6 +79,7 @@ async function getLoginOrRegisterInput() {
     });
     return LoginOrRegisterInput.loginOrRegister;
 }
+// it store the users detail
 const users = [];
 /*
 * @note generateUniqueId: This function generate some number using current time and random number and combine then.
@@ -69,7 +91,11 @@ function generateUniqueId() {
     const uniqueId = timestamp * 100 + random;
     return uniqueId;
 }
-// console.log(`generated ID ${generateUniqueId()}`);
+/*
+* @param pin takes user input pin to to check that its only 4 digit and only number
+* @note isValidPin take one param and return two things ( number and undefined ) if the pin is valid function return the pin and
+*   if the pin in not valid it return undefined
+*/
 async function isValidPin(pin) {
     const pinString = pin.toString();
     const isValid = pinString.length === 4 && /^\d+$/.test(pinString);
@@ -80,6 +106,11 @@ async function isValidPin(pin) {
         return undefined;
     }
 }
+/*
+* @param email takes user input email
+* @note isValidEmail take one param and return two things ( number and undefined ). It check the user input email to ensure its valid or not.
+*   if the email is valid it return the email and if the email is not valid it return undefined
+*/
 async function isValidEmail(email) {
     // Regular expression for basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -91,6 +122,30 @@ async function isValidEmail(email) {
         return undefined;
     }
 }
+/*
+* @param userName get the username
+* @note checkUserName take one param and return a number. It get the username and find the index number of that username in users array to
+*   check that user exist in users array or not. if username already exist in users array it return 0 otherwise it return -1.
+*/
+async function checkUserName(userName) {
+    const userIndex = users.findIndex(user => user.userName === userName);
+    return userIndex;
+}
+/*
+* @param userName get the username
+* @note checkUserName take one param and return a number. It get the username and find the index number of that username in users array to
+*   check that user exist in users array or not. if username already exist in users array it return 0 otherwise it return -1.
+*/
+async function checkUserEmail(userEmail) {
+    const userEmailIndex = users.findIndex(user => user.userEmail === userEmail);
+    return userEmailIndex;
+}
+/*
+ * @note The loginOrRegister function runs when the program starts. It first asks the user what they want to do: "register", "login",
+ *       or "exit", using the getLoginOrRegisterInput function. If the user chooses to login, this function prompts for "username" and "userPin"
+ *       and then leads the user to the login function. If the user wants to register, it asks for "username", "userPin", and "userEmail"
+ *       and leads the user to the register function. If the user chooses to exit, it bids them farewell.
+*/
 async function loginOrRegister() {
     const choices = await getLoginOrRegisterInput();
     if (choices === "login") {
@@ -109,12 +164,18 @@ async function loginOrRegister() {
         console.log(`Good bye, have a good day`);
     }
 }
+// it will call the loginOrRegister function
 loginOrRegister();
 /*
-* @param userName: name of user
-* @param userId: unique id of user
-* @param userPin: user pin to access the account
-* @note
+ * @param userName: name of the user
+ * @param userEmail: email address of the user
+ * @param userPin: PIN for accessing the account
+ * @note This function is used to register a new user. It takes three parameters: userName, userEmail, and userPin.
+ *       First, it checks if the provided username and email are not already registered.
+ *       Then it validates the PIN and email format. If everything is valid and unique,
+ *       it generates a unique ID for the user, adds their details to the user list,
+ *       and prompts them to make their first deposit. If the user is already registered,
+ *       they are directed to either login or register again.
 */
 async function register(userName, userEmail, userPin) {
     const userIndex = await checkUserName(userName);
@@ -125,8 +186,8 @@ async function register(userName, userEmail, userPin) {
         const userId = generateUniqueId();
         const newUser = { userName, userEmail: userEmail || '', userId, userPin, userBalance: 0 };
         users.push(newUser);
-        console.log(chalk.green(`Welcome ${userName}, Thanks for registration`));
-        console.log(chalk.blue(`Make your first deposit`));
+        console.log(chalk.green(`\nWelcome ${userName}, Thanks for registration`));
+        console.log(chalk.blue(`Make your first deposit\n`));
         const amount = await getBalanceDepositInput();
         await balanceDeposit(userName, amount);
         login(userName, userPin);
@@ -137,40 +198,22 @@ async function register(userName, userEmail, userPin) {
     }
     else if (userEmailIndex === 0) {
         console.log(chalk.red(`Email is already registered`));
+        loginOrRegister();
     }
     else {
         console.log(chalk.red(`Invalid credentials`));
         loginOrRegister();
     }
 }
-async function balanceDeposit(userName, amount) {
-    const userIndex = await checkUserName(userName);
-    if (userIndex !== -1) {
-        users[userIndex].userBalance += amount;
-        console.log(`${amount} Amount deposit successfully`);
-        console.log(`Total amount ${users[userIndex].userBalance}`);
-    }
-    else {
-        console.log(`User not found`);
-    }
-}
-async function withDraw(userName, amount) {
-    const userIndex = await checkUserName(userName);
-    let balance = users[userIndex].userBalance;
-    if (userIndex !== -1) {
-        if (balance !== 0 && balance > amount) {
-            balance -= amount;
-            console.log(`${amount} Amount withdraw successfully`);
-            console.log(`Total amount ${balance}`);
-        }
-        else {
-            console.log(`Balance is not enough`);
-        }
-    }
-    else {
-        console.log(`User not found`);
-    }
-}
+/*
+ * @param userName: The name of the user trying to log in
+ * @param userPin: The PIN associated with the user's account
+ * @note The login function is used to authenticate users. It takes in the userName and userPin as parameters.
+ *       It first checks if the provided username exists and if there is a user with the matching PIN.
+ *       If both conditions are met, the user is considered logged in. They are then presented with options such as "deposit",
+ *       "withdraw", "change pin", and "logout". Depending on their choice, the appropriate actions are taken.
+ *       If the credentials are invalid, the user is prompted to try again or register.
+*/
 async function login(userName, userPin) {
     let loggedIn = false;
     const userIndex = await checkUserName(userName);
@@ -181,11 +224,11 @@ async function login(userName, userPin) {
             const choices = await getLoginInput();
             if (choices === "deposit") {
                 const amount = await getBalanceDepositInput();
-                balanceDeposit(userName, amount);
+                await balanceDeposit(userName, amount);
             }
             else if (choices === "withdraw") {
                 const amount = await getBalanceWithdrawInput();
-                withDraw(userName, amount);
+                await withDraw(userName, amount);
             }
             else if (choices === "change pin") {
                 const pin = await getPinInput();
@@ -193,7 +236,12 @@ async function login(userName, userPin) {
                 if (newPin !== undefined) {
                     users[userIndex].userPin = newPin;
                     loggedIn = true;
-                    await loginOrRegister();
+                    loginOrRegister();
+                }
+                else {
+                    console.log(`invalid pin please try again`);
+                    loggedIn = true;
+                    loginOrRegister();
                 }
             }
             else if (choices === "logout") {
@@ -202,16 +250,57 @@ async function login(userName, userPin) {
             }
         }
     }
+    else if (userIndex === -1) {
+        console.log(`User not found`);
+        loginOrRegister();
+    }
     else {
-        console.log(`Invalid credential please try again`);
+        console.log(chalk.red(`Invalid credential please try again`));
         loginOrRegister();
     }
 }
-async function checkUserName(userName) {
-    const userIndex = users.findIndex(user => user.userName === userName);
-    return userIndex;
+/*
+ * @param userName: The name of the user making the deposit
+ * @param amount: The amount to be deposited
+ * @note The balanceDeposit function handles depositing funds into a user's account.
+ *       It takes the userName and amount as parameters. First, it checks if the user exists.
+ *       If the user is found, the amount is added to their existing balance and a success message is displayed.
+ *       If the user is not found, an error message is displayed indicating that the user was not found.
+*/
+async function balanceDeposit(userName, amount) {
+    const userIndex = await checkUserName(userName);
+    if (userIndex !== -1) {
+        users[userIndex].userBalance += amount;
+        console.log(chalk.green(`\n${amount} Amount deposit successfully`));
+        console.log(`Total amount ${users[userIndex].userBalance}\n`);
+    }
+    else {
+        console.log(chalk.red(`User not found`));
+    }
 }
-async function checkUserEmail(userEmail) {
-    const userEmailIndex = users.findIndex(user => user.userEmail === userEmail);
-    return userEmailIndex;
+/*
+ * @param userName: The name of the user making the withdrawal
+ * @param amount: The amount to be withdrawn
+ * @note The withDraw function handles withdrawing funds from a user's account.
+ *       It takes the userName and amount as parameters. First, it checks if the user exists.
+ *       If the user is found and has a balance greater than the withdrawal amount, the withdrawal is processed,
+ *       and the new balance is displayed along with a success message.
+ *       If the user is not found or if the balance is insufficient, appropriate error messages are displayed.
+*/
+async function withDraw(userName, amount) {
+    const userIndex = await checkUserName(userName);
+    let balance = users[userIndex].userBalance;
+    if (userIndex !== -1) {
+        if (balance !== 0 && balance > amount) {
+            balance -= amount;
+            console.log(chalk.green(`\n${amount} Amount withdraw successfully`));
+            console.log(`Total amount ${balance}\n`);
+        }
+        else {
+            console.log(chalk.red(`Balance is not enough`));
+        }
+    }
+    else {
+        console.log(chalk.red(`User not found`));
+    }
 }

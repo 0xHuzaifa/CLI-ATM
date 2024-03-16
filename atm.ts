@@ -81,7 +81,7 @@ async function getPinInput() {
     const PinInput = await inquirer.prompt({
         name: "pin",
         type: "number",
-        message: "Enter your new pin"
+        message: "Enter new pin"
     });
     return PinInput.pin;
 }
@@ -219,8 +219,8 @@ async function register(userName: string, userEmail: string, userPin: number) {
         const userId: number = generateUniqueId();
         const newUser: User = {userName, userEmail: userEmail || '', userId, userPin, userBalance: 0}
         users.push(newUser);
-        console.log(chalk.green(`Welcome ${userName}, Thanks for registration`));
-        console.log(chalk.blue(`Make your first deposit`));
+        console.log(chalk.green(`\nWelcome ${userName}, Thanks for registration`));
+        console.log(chalk.blue(`Make your first deposit\n`));
         const amount = await getBalanceDepositInput();
         await balanceDeposit(userName, amount);
         login(userName, userPin);
@@ -257,23 +257,32 @@ async function login(userName: string, userPin: number): Promise<void> {
             const choices = await getLoginInput();
             if (choices === "deposit") {
                 const amount: number = await getBalanceDepositInput();
-                balanceDeposit(userName,amount);
+                await balanceDeposit(userName,amount);
             } else if (choices === "withdraw") {
                 const amount: number = await getBalanceWithdrawInput();
-                withDraw(userName, amount);
+                await withDraw(userName, amount);
             } else if (choices === "change pin") {
-            const pin: number = await getPinInput();
-            const newPin = await isValidPin(pin)
-            if (newPin !== undefined) {
-                users[userIndex].userPin = newPin;
-                loggedIn = true;
-                await loginOrRegister()
-            }
+                const pin: number = await getPinInput();
+                const newPin = await isValidPin(pin);
+                if (newPin !== undefined) {
+                    users[userIndex].userPin = newPin;
+                    loggedIn = true;
+                    loginOrRegister()
+                } else {
+                    console.log(`invalid pin please try again`);
+                    loggedIn = true;
+                    loginOrRegister()
+                }
+
             } else if (choices === "logout") {
                 loggedIn = true;
                 loginOrRegister()
             }
         }
+    } else if (userIndex === -1) {
+        console.log(`User not found`);
+        loginOrRegister();
+        
     } else {
         console.log(chalk.red(`Invalid credential please try again`));
         loginOrRegister();
