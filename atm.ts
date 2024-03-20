@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import inquirer from "inquirer";
 import chalk from "chalk";
 
@@ -81,7 +83,7 @@ async function getPinInput() {
     const PinInput = await inquirer.prompt({
         name: "pin",
         type: "number",
-        message: "Enter new pin"
+        message: "Enter 4 digits pin"
     });
     return PinInput.pin;
 }

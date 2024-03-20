@@ -7,6 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": "./atm.js",
   "author": "Huzaifa Ahmed",
   "license": "ISC",
   "dependencies": {
